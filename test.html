@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connect to MetaMask</title>
+</head>
+<body>
+    <button id="connectButton">Connect to MetaMask</button>
+    <div id="walletInfo" style="display: none;">
+        <p>Your Ethereum Address: <span id="address"></span></p>
+        <p>Balance: <span id="balance"></span> ETH</p>
+    </div>
+
+    <script>
+        // Check if MetaMask is installed
+        if (typeof window.ethereum !== 'undefined') {
+            const connectButton = document.getElementById('connectButton');
+            const walletInfo = document.getElementById('walletInfo');
+            const addressElement = document.getElementById('address');
+            const balanceElement = document.getElementById('balance');
+
+            // Add a click event listener to the button
+            connectButton.addEventListener('click', async () => {
+                try {
+                    // Request access to the user's Ethereum accounts
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                    // MetaMask is now connected, you can access user's accounts
+                    const accounts = await window.ethereum.send('eth_accounts');
+                    const address = accounts.result[0];
+                    addressElement.textContent = address;
+
+                    // Fetch the user's ETH balance
+                    const balance = await window.ethereum.send('eth_getBalance', [address, 'latest']);
+                    const etherBalance = parseFloat(window.web3.utils.fromWei(balance.result, 'ether'));
+                    balanceElement.textContent = etherBalance.toFixed(4) + ' ETH';
+
+                    // Show the wallet info
+                    walletInfo.style.display = 'block';
+                } catch (error) {
+                    console.error(error);
+                    alert('Error connecting to MetaMask.');
+                }
+            });
+        } else {
+            alert('MetaMask is not installed. Please install it to use this feature.');
+        }
+    </script>
+</body>
+</html>
